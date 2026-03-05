@@ -1,68 +1,82 @@
-import { useState } from 'react'
+import { useState } from "react"
+import InputBox from "./components/InputBox"
+import useCurrencyInfo from "./custom_hook/CurrencyInfo"
 
-// import './App.css'
-const users = [
-  { id: 1, name: "Amit Sharma", email: "amit@gmail.com" },
-  { id: 2, name: "Neha Verma", email: "neha@gmail.com" },
-  { id: 3, name: "Rahul Singh", email: "rahul@gmail.com" },
-  { id: 4, name: "Priya Patel", email: "priya@gmail.com" }
-];
 function App() {
-  const [query, setQuery] = useState("");
-  const filterdUsers = users.filter(user =>
-    user.name.toLowerCase().includes(query.toLowerCase()) ||
-    user.email.toLowerCase().includes(query.toLowerCase())
-  )
+  const [amount, setAmount] = useState(0)
+  const [from, setFrom] = useState('usd')
+  const [to, setTo] = useState('inr')
+  const [convertedAmount, setConvertedAmount] = useState(0)
 
+  const currencyInfo = useCurrencyInfo(from)
+  const options = Object.keys(currencyInfo)
+
+  const swap = () => {
+    setFrom(to)
+    setTo(from)
+    setConvertedAmount(amount)
+    setAmount(convertedAmount)
+  }
+
+  const convert = () => {
+    setConvertedAmount(amount * currencyInfo[to])
+  }
 
   return (
-    <div>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      {filterdUsers.length > 0 ?
-        (<ul>
-          
-          {filterdUsers.map((user) =>
-            <li key={user.id}>
-              {user.name}--- {user.email}
-            </li>
-          )}
-        
-        </ul>) : (
-          <p>No Such User</p>
-        )
-      }
-    </div>
+    <div className="w-full h-screen flex flex-wrap items-center bg-cover bg-no-repeat"
+      style={{
+        backgroundImage: `url(https://images.pexels.com/photos/3532540/pexels-photo-3532540.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2)`
+      }}
+    >
+      <div className="w-full">
+        <div className="max-w-md bg-white/30 mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm">
+          <form
+            onSubmit={
+              (e) => {
+                e.preventDefault()
+                convert()
+              }}
+          >
+            <div className="w-full mb-1">
+              <InputBox
+                label='From'
+                amount={amount}
+                onAmountChange={(amount) => setAmount(amount)}
+                onCurrencyChange={(currency) => setFrom(currency)}
+                selectedCurrency={from}
+                currencyOptions={options}
+              />
+              <div className="relative w-full h-0.5">
+                <button
+                  type="button"
+                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 bg-blue-600 text-white px-2 py-0.5 rounded-md"
+                  onClick={swap}
+                >
+                  Swap
+                </button>
+              </div>
+            </div>
+            <div className="w-full mt-1 mb-4">
+              <InputBox
+                label='To'
+                amount={convertedAmount}
+                selectedCurrency={to}
+                onCurrencyChange={(currency) => setTo(currency)}
+                currencyOptions={options}
+                disableAmount
+              />
+            </div>
+            <button type="submit" className="bg-blue-600 rounded-lg text-white px-4 py-3">
+              Convert {from.toUpperCase()} to {to.toUpperCase()}
+            </button>
+          </form>
 
+        </div>
+
+      </div>
+
+    </div>
   )
 }
 
 export default App
-
-
-
-Problem Statement
-
-You are given a list of users.
-Build a React component that:
-
-Displays a list of users (name + email)
-
-Has a search input
-
-Filters users by name or email as the user types
-
-Matching should be case-insensitive
-
-Show “No users found” if nothing matches
-
-Input Data
-const users = [
-  { id: 1, name: "Amit Sharma", email: "amit@gmail.com" },
-  { id: 2, name: "Neha Verma", email: "neha@gmail.com" },
-  { id: 3, name: "Rahul Singh", email: "rahul@gmail.com" },
-  { id: 4, name: "Priya Patel", email: "priya@gmail.com" }
-];
